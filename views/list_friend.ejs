@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Home</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+    <link href = "mystyle.css" rel = "stylesheet">
+  </head>
+  <body>
+    <%- include('menu.html') %>
+      
+      <table class = "table table-hover table-striped text-center container mt-4" style = "border : 1px solid;">
+        <thead>
+            <tr>
+              <th>아이디</th>
+              <th>이름</th>
+              <th>소속</th>
+              <th>이메일</th>
+              <th>바로가기</th>
+            </tr>
+        </thead>
+        <tbody>
+          <% const friendData = accountdata.filter(item => item.account_id === "friend" && item.userid === preuser); %>
+          <% for(let i = 0; i < accountdata.length; i++){ %>
+            <% for (let j = 0; j < friendData.length; j++) { %>
+              <% let friend_id = friendData[j].frienduser %>
+                <% if (accountdata[i].account_id === "account" && accountdata[i].userid === friend_id) { %>
+              <tr>
+                <td><%= accountdata[i].userid %></td> 
+                <td><%= accountdata[i].username %></td>
+                <td><%= accountdata[i].usergroup %></td>
+                <td><%= accountdata[i].useremail %></td>
+                <td><a href = "/blog/<%= accountdata[i].userid %>">블로그</a></td>
+              </tr>
+               <% } %>
+              <% } %>
+            <% } %>
+        </tbody>
+      </table>
+      <div>
+        <button class = 'btn-btn-primary enter' style = "float:right;" onclick = "move_myhome();">내 블로그</button> 
+      </div>
+      
+      <script src = "https://code.jquery.com/jquery-1.12.4.min.js"></script>
+      <script>
+        function move_myhome(){ 
+        window.open('/login', '_self');
+      } 
+      </script>
+        </form>
+    <script src = "https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

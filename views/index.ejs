@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Home</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+</head>
+<body>
+  <%- include('menu.html') %>
+
+    <br><br>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card" style="height: 30rem;">
+                    <% const introData = data.find(item => item.userid === user && item.content_id === "intro"); %>
+                    <% if (introData) { %>
+                        <img src="<%= introData.path %>" class="card-img-top" alt="프로필 사진">                      
+                        <div class="card-body">
+                            <h5 class="card-title"><%= introData.title %></h5>
+                            <p class="card-text"><%= introData.content %></p>
+                            <br>
+                            <% if (user === preuser ) { %>
+                                <a href="/edit/<%= introData._id %>" class="btn btn-primary">수정</a>
+                            <% } %>
+                        </div>
+                    <% } else { %>
+                        <div class="card-body">
+                            <button class='btn btn-primary enter' style="float:left;" onclick="enter_intro();">블로그 자기소개 작성</button>
+                        </div>
+                    <% } %>
+                    <% const friendData = accountdata.filter(item => item.account_id === "friend" && item.userid === preuser); %>
+                    <% const friendButtonData = friendData.find(item => item.frienduser === user); %>
+                    <% if (friendButtonData) { %>
+                        <td><button class="friend btn btn-outline-danger" user="<%= user %>" disabled>친구입니다</button></td>
+                    <% } else if (user !== preuser) { %>
+                        <td><button class="friend btn btn-outline-danger" user="<%= user %>" >+ 친구추가</button></td>
+                    <% } %>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="card" style="height: 30rem;">
+                    <% const friendlistData = accountdata.filter(item => item.account_id === "friend" && item.userid === preuser); %>
+                    <% const friendUserIds = friendlistData.map(item => item.frienduser); %>
+                    <% const userPosts = data.filter(item => item.userid === preuser && item.content_id === "content"); %>
+                    <% const friendPosts = data.filter(item => friendUserIds.includes(item.userid) && item.content_id === "content"); %>           
+                    <% const latestPosts = [...userPosts, ...friendPosts].sort((a, b) => b.date - a.date).slice(0, 3); %>
+                    <% if (latestPosts.length > 0) { %>
+                        <% latestPosts.forEach(post => { %>
+                            <img src="<%= post.path %>" class="card-img-top" width="200" alt="최신 게시글 사진">
+                            <div class="card-body">
+                                <h5 class="card-title"><%= post.title %></h5>
+                                <h6 class="card-title">작성자 : <%= post.userid %></h6>
+                                <p class="card-text"><%= post.content %></p>
+                            </div>
+                        <% }); %>
+                        <% } else { %>
+                            <div class="card-body">
+                                <p class="card-text">게시글을 작성하거나 친구를 추가해주세요.</p>
+                            </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <% if (user === preuser ) { %>
+        <button class='btn btn-primary enter' style="float:right; padding-right: 10px;" onclick='enter();'>게시글 작성</button>
+        <button class='btn btn-primary enter' style="float:right;" onclick='my_list();'>내 글 목록</button>
+    <% } else if (user !== preuser ) { %>
+        <button class='btn btn-primary enter' style="float:right; padding-right: 10px;" onclick='Friend_list();'>글 목록</button>
+        <button class='btn btn-primary enter' style="float:right;" onclick='list_Friend();'>친구목록</button>
+    <% } %>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $('.friend').click(function (e) {
+            let user = $(this).attr('user');
+            let button = $(this);
+
+            $.ajax({
+                type: 'POST',
+                url: '/friend',  // 친구 추가를 처리하는 라우트 경로
+                data: { user: user },  // 친구 추가에 필요한 친구의 아이디 전달
+            }).done(function (result) {
+                console.log('친구 추가 성공');
+                button.text('친구입니다');  // 여기서 버튼의 내용을 변경하고 비활성화 처리
+                button.prop('disabled', true);
+            }).fail(function (xhr, textStatus, errorThrown) {    // 친구 추가 실패 시
+                console.log('친구 추가 실패');
+                console.log(xhr, textStatus, errorThrown);
+            });
+        });
+    </script>
+
+    <script>
+      function enter_intro(){ 
+        window.open('/enter_intro', '_self');
+      }
+      </script>
+      <script>
+        function enter(){ 
+          window.open('/enter', '_self');
+      }
+      </script>
+      <script>
+        function my_list(){ 
+          window.open('/list/<%= user %>', '_self');
+      }
+      </script>
+      <script>
+        function Friend_list(){ 
+          window.open('/list/<%= user %>', '_self');
+      }
+      </script>
+      <script>
+        function list_Friend(){ 
+          window.open('/list_friend', '_self');
+      }
+      </script>
+</body>
+</html>
